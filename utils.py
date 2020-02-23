@@ -41,8 +41,7 @@ def school_parser(content: str):
     exam_tds = tables[1].find("tr").find_all("td", limit=7)
     exam = exam_tds[6].text.strip()
     assert "%" in exam, f"Exam not found: {exam_tds}"
-    if exam != "0%":
-        result[SchoolAttr.EXAM] = exam
+    result[SchoolAttr.EXAM] = exam
 
     # special exam
     special_exam_tds = tables[1].find("tr").find_all("td")

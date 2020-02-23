@@ -2,7 +2,7 @@ from collections import defaultdict
 from utils import zipfile_reader, school_parser, SchoolAttr
 
 
-def _zipfile_reader(filename):
+def _test_zipfile_reader(filename):
     import itertools
 
     yield from itertools.islice(zipfile_reader(filename), 5)
@@ -10,7 +10,7 @@ def _zipfile_reader(filename):
 
 def attr_analysis():
     attrs = defaultdict(int)
-    for filename, content in zipfile_reader("data/109.zip"):
+    for _, content in zipfile_reader("data/109.zip"):
         d = school_parser(content)
         for name in d:
             attrs[name] += 1
