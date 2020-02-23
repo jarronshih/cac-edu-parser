@@ -1,0 +1,11 @@
+---
+kind: pipeline
+
+
+steps:
+- name: smoke test
+  image: python:3.7
+  commands:
+    - pip install pipenv
+    - pipenv install --dev
+    - pipenv run main.py
