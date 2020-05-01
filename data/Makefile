@@ -10,4 +10,4 @@ unzip-108:
 	unzip 108.zip 
 
 clean:
-	rm -f *.html *.htm
+	rm -f *.html *.htm *.pdf

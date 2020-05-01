@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 from enum import Enum, auto
 from zipfile import ZipFile
+import re
 
 
 class SchoolAttr(Enum):
@@ -13,10 +14,12 @@ class SchoolAttr(Enum):
         return str(self.value)
 
 
-def zipfile_reader(zip_file_path: str):
+def zipfile_reader(zip_file_path: str, decode=True):
     zip_file = ZipFile(zip_file_path)
     for filename in zip_file.namelist():
-        content = zip_file.read(filename).decode()
+        content = zip_file.read(filename)
+        if decode:
+            content = content.decode()
         yield filename, content
 
 
@@ -72,3 +75,52 @@ def school_parser(content: str):
 
     return result
 
+
+class LearningPortfolioAttr(Enum):
+    UNIVERSITY = "大學"
+    MAJOR = "科系"
+    COURSE_RECORD = "修課紀錄"
+    STUDY_RESULT = "課程學習成果"
+    DIVERSITY = "多元表現"
+
+
+learning_portfolios_name_pattern = re.compile(r".*-.*")
+learning_portfolios_pattern = re.compile(r"(\(\d+\).*)|(\d+\..*)")
+
+
+def learning_portfolios_parser(content):
+    result = {}
+
+    soup = BeautifulSoup(content, "html.parser")
+    texts = [div.text.strip() for div in soup.find_all("div", class_="t")]
+
+    for text in texts:
+        if learning_portfolios_name_pattern.match(text):
+            (
+                result[LearningPortfolioAttr.UNIVERSITY],
+                result[LearningPortfolioAttr.MAJOR],
+            ) = text.split("-", 1)
+            break
+    else:
+        raise Exception("UNIVERSITY not found")
+
+    title_and_content_div = soup.select("div.x5,div.x6")
+    contents = [""]
+
+    for div in title_and_content_div:
+        if "x5" in div["class"]:
+            if contents[-1]:
+                contents.append("")
+        else:
+            if not contents[-1] and not learning_portfolios_pattern.match(
+                div.text.strip()
+            ):
+                continue
+            contents[-1] += div.text.strip()
+
+    (
+        result[LearningPortfolioAttr.COURSE_RECORD],
+        result[LearningPortfolioAttr.STUDY_RESULT],
+        result[LearningPortfolioAttr.DIVERSITY],
+    ) = contents
+    return result

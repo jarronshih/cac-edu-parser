@@ -1,6 +1,7 @@
+import pytest
 from collections import defaultdict
 from cac_parser.formatter import standard_formatter, STANDARD_HEADERS
-from cac_parser.utils import zipfile_reader, school_parser
+from cac_parser.utils import *
 
 
 def test_attr_analysis():
@@ -23,4 +24,17 @@ def test_csv():
             result = school_parser(content)
             row = standard_formatter(result)
             f.write(",".join(row))
+            f.write("\n")
+
+
+@pytest.mark.skip(reason="no data")
+def test_parse_learning_portfolios_html():
+    with open("output.csv", "w+") as f:
+        f.write(",".join(e.value for e in LearningPortfolioAttr))
+        f.write("\n")
+
+        for _, content in zipfile_reader("data/111_learning_portfolios_html.zip"):
+            result = learning_portfolios_parser(content)
+
+            f.write(",".join(result[e] for e in LearningPortfolioAttr))
             f.write("\n")
