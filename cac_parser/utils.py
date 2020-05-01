@@ -105,22 +105,30 @@ def learning_portfolios_parser(content):
         raise Exception("UNIVERSITY not found")
 
     title_and_content_div = soup.select("div.x5,div.x6")
-    contents = [""]
+    contents = []
 
     for div in title_and_content_div:
+        text = div.text.strip()
         if "x5" in div["class"]:
-            if contents[-1]:
+            if text in ["紀錄", "成果", "表現"]:
                 contents.append("")
         else:
-            if not contents[-1] and not learning_portfolios_pattern.match(
-                div.text.strip()
-            ):
+            if not contents[-1] and not learning_portfolios_pattern.match(text):
                 continue
             contents[-1] += div.text.strip()
 
-    (
-        result[LearningPortfolioAttr.COURSE_RECORD],
-        result[LearningPortfolioAttr.STUDY_RESULT],
-        result[LearningPortfolioAttr.DIVERSITY],
-    ) = contents
+    if len(contents) == 3:
+        (
+            result[LearningPortfolioAttr.COURSE_RECORD],
+            result[LearningPortfolioAttr.STUDY_RESULT],
+            result[LearningPortfolioAttr.DIVERSITY],
+        ) = contents
+    else:
+        (
+            result[LearningPortfolioAttr.COURSE_RECORD],
+            result[LearningPortfolioAttr.STUDY_RESULT],
+            result[LearningPortfolioAttr.DIVERSITY],
+        ) = ["", "", ""]
+        print(title_and_content_div)
+        print(contents)
     return result
